@@ -1,7 +1,4 @@
-const contextMenuItem = {
-    "id": "VideoScanner",
-    "title": "Scan this video",
-    "contexts": ["video"]
-}
+chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
 
-chrome.contextMenus.create(contextMenuItem);
+    sendResponse({ isFake: "true"});
+});
