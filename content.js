@@ -1,6 +1,4 @@
-function showAlert(video) {
-
-    // Show an alert under the given video
+function showBadge(video) {
 
     const divAlert = document.createElement("div");
     divAlert.className += "deeptruth-alert";
@@ -11,20 +9,19 @@ function showAlert(video) {
 
 function analyzeVideo(video) {
 
-    // Analyze given video to check if it is a deepfake or not
+    const isFake = true;
 
-    const classes = video.className.split(' ');
+    if (isFake) {
+        showBadge(video);
 
-    // if (classes.includes("deepfake")) {
-    console.log("This video is a deepfake !");
-    showAlert(video);
-    video.dataset.analyzed = "1";
-    // }
+        const obj = {};
+        obj[video.id] = "true";
+
+        chrome.storage.sync.set(obj);
+    }
 }
 
 function checkWebPage() {
-
-    // Check web page every two seconds for videos playing
 
     const videos = document.getElementsByTagName("video");
 
@@ -32,9 +29,18 @@ function checkWebPage() {
 
         const video = videos[index];
 
-        if (video.currentTime > 0 && !video.paused && video.dataset.analyzed === undefined) {
-            analyzeVideo(video);
-        }
+        chrome.storage.sync.get(video.id, function (result) {
+            if (Object.keys(result).length === 0 && result.constructor === Object) {
+                console.log("Video has not been analyzed yet");
+                if (video.currentTime > 0 && !video.paused && video.dataset.analyzed === undefined) {
+                    analyzeVideo(video);
+                }
+            } else {
+                console.log("Video has already been analyzed");
+                video.dataset.analyzed = "true";
+                showBadge(video);
+            }
+        });
     }
 
     setTimeout(checkWebPage, 2000);
